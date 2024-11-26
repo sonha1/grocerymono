@@ -1,0 +1,59 @@
+server:
+  port: ${SERVER_PORT:0}
+  shutdown: graceful
+spring:
+  application:
+    name: ${APP_NAME:grocery-mono}
+  profiles:
+    active: ${ENV:dev}
+
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/grocery_mono_dev?createDatabaseIfNotExist=true
+    username: root
+    password: sonha12
+    driverClassName: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: false
+    properties:
+      format_sql: true
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak-login:
+            clientId: grocery
+            clientSecret: dqZTjIh9N2YHeDS7GbN7PYHLS4htglBH
+            authorizationGrantType: password
+            scope:
+              - openid
+              - profile
+              - roles
+            provider: keycloak
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8180/realms/grocery-realm
+            token-uri: http://localhost:8180/realms/grocery-realm/protocol/openid-connect/token
+hibernate:
+  physical_naming_strategy: com.tks.grocerymono.base.hibernate.namingstrategy.CustomPhysicalNamingStrategy
+
+keycloak:
+  realm: grocery-realm
+  resource: grocery
+  auth-server-url: http://localhost:8180
+  ssl-required: none
+  use-resource-role-mappings: true
+  bearer-only: true
+  principal-attribute: preferred_username
+
+keycloak-admin:
+  username: ${KEYCLOAK_ADMIN_USERNAME:admin}
+  password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
+
+cloudinary:
+  api-url: cloudinary://483416876353976:eaPzuW3674qdh5jM7sF0b3H44b0@di1zqwo8y
+  product-url:
+    regex: product-regex
+    resized-regex: product-resized-regex
+  product-prefix-path: product-dev

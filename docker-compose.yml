@@ -1,0 +1,48 @@
+version: '3.9'
+
+services:
+  mysql-kc:
+    image: mysql:8.0.37
+    ports:
+      - 3366:3306
+    restart: unless-stopped
+    environment:
+      MYSQL_USER: sontk
+      MYSQL_PASSWORD: sonha12
+      MYSQL_DATABASE: keycloak_db
+      MYSQL_ROOT_PASSWORD: sonha12
+    volumes:
+      - keycloak-and-mysql-volume:/var/lib/mysql
+    healthcheck:
+      test: "exit 0"
+    networks:
+      - keycloak-and-mysql-network
+
+  keycloak-w:
+    image: quay.io/keycloak/keycloak:latest
+    ports:
+      - 8180:8080
+    restart: unless-stopped
+    command:
+      - start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: mysql
+      KC_DB_URL_HOST: mysql-kc
+      KC_DB_URL_DATABASE: keycloak_db
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: sonha12
+      KC_DB_SCHEMA: keycloak_db
+      QUARKUS_TRANSACTION_MANAGER_ENABLE_RECOVERY: 'true'
+    depends_on:
+      mysql-kc:
+        condition: service_healthy
+    networks:
+      - keycloak-and-mysql-network
+
+networks:
+  keycloak-and-mysql-network:
+
+volumes:
+  keycloak-and-mysql-volume:
